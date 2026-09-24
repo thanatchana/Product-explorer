@@ -1,15 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { defaultQuery, fetchProducts } from "@/lib/products";
-import type { Product, ProductList, SearchQuery } from "@/lib/products";
+import type {
+  Product,
+  ProductDraft,
+  ProductList,
+  SearchQuery,
+} from "@/lib/products";
+import ProductSearchForm from "./ProductSearchForm";
+import ProductForm from "./ProductForm";
 
-type LoadState = "idle" | "loading" | "error" | "ready";
+// type LoadState = "idle" | "loading" | "error" | "ready";
+type LoadState = "loading" | "error" | "ready";
 
 export default function ProductExplorer() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [status, setStatus] = useState<LoadState>("idle");
+  // const [status, setStatus] = useState<LoadState>("idle");
+  const [status, setStatus] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    fetchProducts(defaultQuery).then(showResult).catch(showError);
+    // เติม: สิ่งที่กำหนดให้ทำงานเพียงครั้งเดียวตอนแสดงผลครั้งแรก
+  }, []);
 
   function showResult(list: ProductList) {
     setProducts(list.products);
@@ -35,6 +49,12 @@ export default function ProductExplorer() {
     }
   }
 
+  function saveProduct(draft: ProductDraft) {
+    // เติม: เครื่องหมายที่คัดลอกสมาชิกเดิมทั้งหมดของ Array
+    console.log("บันทึกข้อมูลสินค้า Explorer", draft);
+    setProducts([...products, { ...draft, id: Date.now() }]);
+  }
+
   return (
     <main>
       <h1>รายการสินค้า</h1>
@@ -47,8 +67,10 @@ export default function ProductExplorer() {
         {status === "loading" ? "กำลังโหลด" : "โหลดข้อมูล"}
       </button>
 
+      <ProductSearchForm onSearch={loadProducts} />
+
       <section aria-live="polite">
-        {status === "idle" && <p>คลิกปุ่มโหลดข้อมูลเพื่อเริ่ม</p>}
+        {/* {status === "idle" && <p>คลิกปุ่มโหลดข้อมูลเพื่อเริ่ม</p>} */}
 
         {status === "loading" && <p>กำลังโหลดข้อมูล</p>}
 
@@ -77,21 +99,26 @@ export default function ProductExplorer() {
                   <td>{item.stock}</td>
                   <td>{item.category}</td>
                   {/* <td>{item.images}</td> */}
-                  <td>{item.images && item.images.length > 0 && (
-                    <img 
-                        src={item.images[0]} 
-                        alt={item.title} 
-                        width={50} 
-                        height={50} 
-                        style={{ objectFit: 'cover' }}
-                    />)}</td>
+                  <td>
+                    {item.images && item.images.length > 0 && (
+                      <img
+                        src={item.images[0]}
+                        alt={item.title}
+                        width={50}
+                        height={50}
+                        style={{ objectFit: "cover" }}
+                      />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </section>
-
+      <div>
+        <ProductForm editing={null} onSave={saveProduct} onCancel={() => {}} />
+      </div>
     </main>
   );
 }
