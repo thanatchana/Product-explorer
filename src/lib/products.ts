@@ -44,6 +44,7 @@ export type ProductDraft = z.infer<typeof ProductDraftSchema>;
 
 const API_BASE = "https://dummyjson.com";
 
+
 export const SORT_FIELDS = ["title", "price", "stock","images"] as const;
 
 // export type SearchQuery = {

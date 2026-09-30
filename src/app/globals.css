@@ -20,7 +20,129 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f8fafc; 
+  color: #1e293b;           
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 24px;
+}
+
+/* หัวข้อหลักของหน้าเว็บ (รายการสินค้า) */
+h1, h2, .page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+/* จัดการฟอร์มค้นหา ตัวกรอง และปุ่มควบคุมด้านบน */
+input[type="text"], 
+input[type="search"],
+select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+input[type="text"]:focus, 
+input[type="search"]:focus,
+select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ปุ่มกดต่างๆ */
+button, .btn {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+button:hover, .btn:hover {
+  background-color: #2563eb;
+}
+
+button:active, .btn:active {
+  transform: translateY(1px);
+}
+
+/* ตารางแสดงรายการสินค้า */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* หัวตาราง */
+th {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* แถวในตาราง */
+td {
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+/* เอฟเฟกต์เวลาเอาเมาส์ชี้แถวในตาราง */
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* ตกแต่งรูปภาพหรืออีโมจิสินค้าในตาราง */
+td img, td span[role="img"] {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: #f1f5f9;
+  object-fit: contain;
+}
+
+/* จัดวางส่วนฟอร์มเพิ่มสินค้าด้านล่าง (ถ้ามี) */
+form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
 }
