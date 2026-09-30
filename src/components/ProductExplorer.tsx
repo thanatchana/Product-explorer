@@ -19,6 +19,7 @@ export default function ProductExplorer() {
   // const [status, setStatus] = useState<LoadState>("idle");
   const [status, setStatus] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchProducts(defaultQuery).then(showResult).catch(showError);
@@ -52,8 +53,29 @@ export default function ProductExplorer() {
   function saveProduct(draft: ProductDraft) {
     // เติม: เครื่องหมายที่คัดลอกสมาชิกเดิมทั้งหมดของ Array
     console.log("บันทึกข้อมูลสินค้า Explorer", draft);
-    setProducts([...products, { ...draft, id: Date.now() }]);
+    if (editingId === null) {
+      setProducts([...products, { ...draft, id: Date.now() }]);
+    } else {
+      setProducts(
+        products.map((item) =>
+          item.id === editingId ? { ...draft, id: editingId } : item
+        )
+      );
+      setEditingId(null);
+    }
   }
+
+    function removeProduct(id: number) {
+    setProducts(products.filter((item) => item.id !== id));
+    
+    if (editingId === id) {
+      setEditingId(null);
+    }
+  }
+
+  const editingProduct = products.find((item) => item.id === editingId) || null;
+
+
 
   return (
     <main>
@@ -88,7 +110,8 @@ export default function ProductExplorer() {
                 <th>ราคา</th>
                 <th>คงเหลือ</th>
                 <th>หมวดหมู่</th>
-                {/* <th>รูปภาพ</th> */}
+                <th>รูปภาพ</th>
+                <th>การจัดการ</th>
               </tr>
             </thead>
             <tbody>
@@ -110,6 +133,20 @@ export default function ProductExplorer() {
                       />
                     )}
                   </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(item.id)}
+                    >
+                      แก้ไข
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeProduct(item.id)}
+                    >
+                      ลบ
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -117,7 +154,7 @@ export default function ProductExplorer() {
         )}
       </section>
       <div>
-        <ProductForm editing={null} onSave={saveProduct} onCancel={() => {}} />
+        <ProductForm key={editingId??"new"}editing={editingProduct} onSave={saveProduct} onCancel={() => setEditingId(null)} />
       </div>
     </main>
   );
