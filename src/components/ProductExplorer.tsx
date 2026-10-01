@@ -1,161 +1,376 @@
 "use client";
 
+
+
 import { useEffect, useState } from "react";
+
 import { defaultQuery, fetchProducts } from "@/lib/products";
+
 import type {
+
   Product,
+
   ProductDraft,
+
   ProductList,
+
   SearchQuery,
+
 } from "@/lib/products";
+
 import ProductSearchForm from "./ProductSearchForm";
+
 import ProductForm from "./ProductForm";
 
+
+
 // type LoadState = "idle" | "loading" | "error" | "ready";
+
 type LoadState = "loading" | "error" | "ready";
 
+
+
 export default function ProductExplorer() {
+
   const [products, setProducts] = useState<Product[]>([]);
+
   // const [status, setStatus] = useState<LoadState>("idle");
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   const [status, setStatus] = useState<LoadState>("loading");
+
   const [errorMessage, setErrorMessage] = useState("");
-  const [editingId, setEditingId] = useState<number | null>(null);
+
+
 
   useEffect(() => {
+
     fetchProducts(defaultQuery).then(showResult).catch(showError);
+
     // เติม: สิ่งที่กำหนดให้ทำงานเพียงครั้งเดียวตอนแสดงผลครั้งแรก
+
   }, []);
 
+
+
   function showResult(list: ProductList) {
+
     setProducts(list.products);
+
     setStatus("ready");
+
     console.log(products);
+
   }
+
+
 
   function showError(error: unknown) {
+
     setErrorMessage(
+
       error instanceof Error ? error.message : "เรียกข้อมูลไม่สำเร็จ",
+
     );
+
     setStatus("error");
+
   }
+
+
 
   async function loadProducts(query: SearchQuery) {
+
     setStatus("loading");
+
     setErrorMessage("");
 
+
+
     try {
+
       showResult(await fetchProducts(query));
+
     } catch (error) {
+
       showError(error);
+
     }
+
   }
+
+
 
   function saveProduct(draft: ProductDraft) {
+
     // เติม: เครื่องหมายที่คัดลอกสมาชิกเดิมทั้งหมดของ Array
+
     console.log("บันทึกข้อมูลสินค้า Explorer", draft);
-    if (editingId === null) {
-      setProducts([...products, { ...draft, id: Date.now() }]);
-    } else {
-      setProducts(
-        products.map((item) =>
-          item.id === editingId ? { ...draft, id: editingId } : item
-        )
-      );
-      setEditingId(null);
-    }
-  }
 
-    function removeProduct(id: number) {
-    setProducts(products.filter((item) => item.id !== id));
-    
-    if (editingId === id) {
-      setEditingId(null);
-    }
-  }
+    setProducts([...products, { ...draft, id: Date.now() }]);
 
-  const editingProduct = products.find((item) => item.id === editingId) || null;
+  }
 
 
 
   return (
+
     <main>
+
       <h1>รายการสินค้า</h1>
 
+
+
       <button
+
         type="button"
+
         onClick={() => loadProducts(defaultQuery)}
+
         disabled={status === "loading"}
+
       >
+
         {status === "loading" ? "กำลังโหลด" : "โหลดข้อมูล"}
+
       </button>
+
+
 
       <ProductSearchForm onSearch={loadProducts} />
 
+
+
       <section aria-live="polite">
+
         {/* {status === "idle" && <p>คลิกปุ่มโหลดข้อมูลเพื่อเริ่ม</p>} */}
+
+
 
         {status === "loading" && <p>กำลังโหลดข้อมูล</p>}
 
+
+
         {status === "error" && <p role="alert">{errorMessage}</p>}
 
+
+
         {status === "ready" && products.length === 0 && (
+
           <p>ไม่พบสินค้าที่ตรงกับเงื่อนไข</p>
+
         )}
 
+
+
         {status === "ready" && products.length > 0 && (
+
           <table>
+
             <thead>
+
               <tr>
+
                 <th>ชื่อสินค้า</th>
+
                 <th>ราคา</th>
+
                 <th>คงเหลือ</th>
+
                 <th>หมวดหมู่</th>
-                <th>รูปภาพ</th>
-                <th>การจัดการ</th>
+
+                <th> </th>
+
+                <th> </th>
+
+                {/* <th>รูปภาพ</th> */}
+
               </tr>
+
             </thead>
+
             <tbody>
+
               {products.map((item) => (
+
                 <tr key={item.id}>
+
                   <td>{item.title}</td>
+
                   <td>{item.price}</td>
+
                   <td>{item.stock}</td>
+
                   <td>{item.category}</td>
+
                   {/* <td>{item.images}</td> */}
+
                   <td>
+
                     {item.images && item.images.length > 0 && (
+
                       <img
+
                         src={item.images[0]}
+
                         alt={item.title}
+
                         width={50}
+
                         height={50}
+
                         style={{ objectFit: "cover" }}
+
                       />
+
                     )}
+
                   </td>
+
                   <td>
+
                     <button
+
                       type="button"
-                      onClick={() => setEditingId(item.id)}
+
+                      onClick={() => setSelectedProduct(item)}
+
                     >
-                      แก้ไข
+
+                      ดูรายละเอียด
+
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => removeProduct(item.id)}
-                    >
-                      ลบ
-                    </button>
+
                   </td>
+
                 </tr>
+
               ))}
+
             </tbody>
+
           </table>
+
         )}
+
       </section>
+
+      {selectedProduct && (
+
+        <div className="mt-6 border border-gray-200 bg-white rounded-xl p-6 shadow-md max-w-2xl mx-auto space-y-4">
+
+          {/* หัวข้อส่วนรายละเอียด */}
+
+          <div className="border-b border-blue-500 pb-3">
+
+            <h2 className="text-2xl font-bold text-gray-800">
+
+              รายละเอียดสินค้า:{" "}
+
+              <span className="text-blue-600">{selectedProduct.title}</span>
+
+            </h2>
+
+          </div>
+
+
+
+          {/* เนื้อหารายละเอียด */}
+
+          <div className="space-y-2 text-gray-700">
+
+            <p>
+
+              <strong>หมวดหมู่:</strong> {selectedProduct.category}
+
+            </p>
+
+            <p>
+
+              <strong>ราคา:</strong> ${selectedProduct.price}
+
+            </p>
+
+            <p>
+
+              <strong>คงเหลือ:</strong> {selectedProduct.stock} ชิ้น
+
+            </p>
+
+            <p>
+
+              <strong>รายละเอียด:</strong>{" "}
+
+              {selectedProduct.description || "ไม่มีรายละเอียดสินค้า"}
+
+            </p>
+
+          </div>
+
+
+
+          {/* รูปภาพสินค้า */}
+
+          {selectedProduct.images && selectedProduct.images.length > 0 && (
+
+            <div className="flex gap-3 pt-2">
+
+              {selectedProduct.images.map((img, idx) => (
+
+                <img
+
+                  key={idx}
+
+                  src={img}
+
+                  alt={selectedProduct.title}
+
+                  className="w-20 h-20 object-cover rounded-lg border border-gray-200 shadow-sm"
+
+                />
+
+              ))}
+
+            </div>
+
+          )}
+
+
+
+          {/* ปุ่มปิด */}
+
+          <div className="pt-2">
+
+            <button
+
+              type="button"
+
+              onClick={() => setSelectedProduct(null)}
+
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition"
+
+            >
+
+              ปิดหน้าต่าง
+
+            </button>
+
+          </div>
+
+        </div>
+
+      )}
+
       <div>
-        <ProductForm key={editingId??"new"}editing={editingProduct} onSave={saveProduct} onCancel={() => setEditingId(null)} />
+
+        <ProductForm editing={null} onSave={saveProduct} onCancel={() => {}} />
+
       </div>
+
     </main>
+
   );
-}
+
+} 
+
